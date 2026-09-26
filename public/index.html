@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Store</title>
+<meta name="description" content="A small e-commerce storefront with a product catalog, cart, checkout, and order tracking." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ===== Auth screen ===== -->
+<section id="auth-screen" class="auth-screen">
+  <div class="auth-card">
+    <p class="brand">Store</p>
+    <h1 id="auth-title">Welcome back</h1>
+
+    <form id="login-form" class="auth-form">
+      <div class="field">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" required autocomplete="email" />
+      </div>
+      <div class="field">
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" required autocomplete="current-password" />
+      </div>
+      <p class="auth-error" id="login-error" role="alert"></p>
+      <button type="submit" class="btn btn-primary btn-block">Log in</button>
+    </form>
+
+    <form id="register-form" class="auth-form hidden">
+      <div class="field">
+        <label for="register-name">Name</label>
+        <input type="text" id="register-name" required autocomplete="name" />
+      </div>
+      <div class="field">
+        <label for="register-email">Email</label>
+        <input type="email" id="register-email" required autocomplete="email" />
+      </div>
+      <div class="field">
+        <label for="register-password">Password</label>
+        <input type="password" id="register-password" required minlength="8" autocomplete="new-password" />
+        <span class="hint">At least 8 characters</span>
+      </div>
+      <p class="auth-error" id="register-error" role="alert"></p>
+      <button type="submit" class="btn btn-primary btn-block">Create account</button>
+    </form>
+
+    <button id="auth-toggle" class="link-btn">Need an account? Sign up</button>
+    <p class="hint admin-hint">Admin demo login: admin@example.com / admin12345</p>
+  </div>
+</section>
+
+<!-- ===== App shell ===== -->
+<div id="app-screen" class="app-screen hidden">
+
+  <header class="topbar">
+    <span class="brand">Store</span>
+    <nav class="topnav">
+      <button class="nav-btn active" data-view="store">Catalog</button>
+      <button class="nav-btn" data-view="orders">My orders</button>
+      <button class="nav-btn hidden" id="admin-nav-btn" data-view="admin">Admin</button>
+    </nav>
+    <div class="topbar-right">
+      <button id="cart-btn" class="cart-btn">Cart <span id="cart-count" class="cart-count">0</span></button>
+      <span id="user-name" class="user-name"></span>
+      <button id="logout-btn" class="link-btn">Log out</button>
+    </div>
+  </header>
+
+  <!-- ---- Store view ---- -->
+  <main id="view-store" class="view">
+    <div class="view-head">
+      <h1>Catalog</h1>
+      <div class="chips" id="category-chips"></div>
+    </div>
+    <div class="product-grid" id="product-grid">
+      <p class="loading">Loading products…</p>
+    </div>
+  </main>
+
+  <!-- ---- Orders view ---- -->
+  <main id="view-orders" class="view hidden">
+    <div class="view-head"><h1>My orders</h1></div>
+    <div id="orders-list" class="orders-list">
+      <p class="loading">Loading orders…</p>
+    </div>
+  </main>
+
+  <!-- ---- Admin view ---- -->
+  <main id="view-admin" class="view hidden">
+    <div class="view-head">
+      <h1>Admin</h1>
+      <div class="admin-tabs">
+        <button class="admin-tab-btn active" data-tab="admin-products">Products</button>
+        <button class="admin-tab-btn" data-tab="admin-orders">Orders</button>
+      </div>
+    </div>
+
+    <div id="admin-products" class="admin-tab">
+      <button id="new-product-btn" class="btn btn-primary">+ New product</button>
+      <table class="data-table">
+        <thead>
+          <tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th></th></tr>
+        </thead>
+        <tbody id="admin-product-rows">
+          <tr><td colspan="5" class="loading">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div id="admin-orders" class="admin-tab hidden">
+      <table class="data-table">
+        <thead>
+          <tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th></tr>
+        </thead>
+        <tbody id="admin-order-rows">
+          <tr><td colspan="4" class="loading">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+</div>
+
+<!-- ===== Cart drawer ===== -->
+<div id="cart-drawer" class="drawer hidden">
+  <div class="drawer-backdrop" id="cart-backdrop"></div>
+  <div class="drawer-panel">
+    <div class="drawer-head">
+      <h2>Your cart</h2>
+      <button id="close-cart-btn" class="link-btn">Close</button>
+    </div>
+    <div id="cart-items" class="cart-items"></div>
+    <div class="drawer-footer">
+      <div class="cart-total-row"><span>Total</span><span id="cart-total">$0.00</span></div>
+      <button id="checkout-btn" class="btn btn-primary btn-block">Checkout</button>
+      <p id="checkout-status" class="checkout-status"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Product editor modal (admin) ===== -->
+<div id="product-modal" class="modal hidden">
+  <div class="modal-card">
+    <h2 id="product-modal-title">New product</h2>
+    <form id="product-form">
+      <input type="hidden" id="product-id" />
+      <div class="field">
+        <label for="product-name">Name</label>
+        <input type="text" id="product-name" required />
+      </div>
+      <div class="field">
+        <label for="product-description">Description</label>
+        <textarea id="product-description" rows="3"></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="product-price">Price (USD)</label>
+          <input type="number" id="product-price" min="0" step="0.01" required />
+        </div>
+        <div class="field">
+          <label for="product-stock">Stock</label>
+          <input type="number" id="product-stock" min="0" step="1" required />
+        </div>
+      </div>
+      <div class="field">
+        <label for="product-category">Category</label>
+        <input type="text" id="product-category" placeholder="e.g. Kitchen" required />
+      </div>
+      <div class="modal-actions">
+        <button type="button" id="delete-product-btn" class="btn btn-danger hidden">Delete</button>
+        <div class="modal-actions-right">
+          <button type="button" id="cancel-product-btn" class="btn btn-ghost">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
